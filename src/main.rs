@@ -1,0 +1,3 @@
+mod wastebin;
+
+fn main() {}
