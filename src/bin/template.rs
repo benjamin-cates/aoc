@@ -8,20 +8,14 @@ fn part1(input: &str) -> usize {
     0
 }
 
-#[cfg(test)]
-#[test]
-fn test_part1() {
-    let input = "";
-    assert_eq!(part1(input), 0);
-}
-
 fn part2(input: &str) -> usize {
     0
 }
 
 #[cfg(test)]
 #[test]
-fn test_part2() {
+fn test_solution() {
     let input = "";
+    assert_eq!(part1(input), 0);
     assert_eq!(part2(input), 0);
 }
