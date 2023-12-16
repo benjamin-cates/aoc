@@ -1,3 +1,2 @@
 mod wastebin;
-
 fn main() {}
