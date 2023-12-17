@@ -52,6 +52,7 @@ impl CharGrid {
     }
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Dir {
     North,
     South,
