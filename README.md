@@ -6,6 +6,8 @@ All of my solutions are written entirely in Rust and are my own work with no hin
 ```
       ----Part 1------     -----Part 2-----
 Day       Time    Rank         Time   Rank      Start Time
+ 25   02:58:49    3081     02:59:08   2572      00:00
+ 24   00:31:09     480     02:15:17    964      00:00
  23   01:17:04    2888     02:25:18   1740      00:54
  22   02:05:14    2775     02:15:26   2217      00:40
  21   00:12:25    1109     03:47:08   1807      00:00
