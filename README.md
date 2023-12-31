@@ -1,8 +1,9 @@
 # Advent of Code 2023
-Here is a collection of my [Advent of Code](https://adventofcode.com/2023) submissions for the year 2023.
+Here is a collection of my [Advent of Code](https://adventofcode.com/) submissions.
+
 All of my solutions are written entirely in Rust and are my own work with no hints.
 
-## Personal times
+## Personal times 2023
 ```
       ----Part 1------     -----Part 2-----
 Day       Time    Rank         Time   Rank      Start Time
@@ -34,13 +35,15 @@ Day       Time    Rank         Time   Rank      Start Time
 ```
 
 ## Structure
+Each year is in its own subdirectory under the root and is its own crate.
+
 For the file layout, library files are contained in `src` and each day and its corresponding input is stored in `src/bin`. Each day is a two digit number representing the date plus the `.rs` extension. Each input is the same but with the `.txt` extension.
 
 ## Compiling
 Ensure you have the Rust toolchain installed for your computer (visit [rustup.rs](https://rustup.rs) for more info).
 Each day is its own binary application, using the date number to represent each day,
 run either `cargo test --bin 13`to test day 13 for example. Or `cargo run --bin 13`
-to run day 13 for example.
+to run day 13.
 
 
 
