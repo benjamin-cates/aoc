@@ -1,5 +1,12 @@
-use eqsolver::multivariable::MultiVarNewton;
-use nalgebra::{SMatrix, SVector};
+use std::str::FromStr;
+
+use astro_nalgebra::{
+    num_traits::{FromPrimitive, Zero},
+    BigFloat, ConstCtx,
+};
+use nalgebra::{ComplexField, RealField, SMatrix, SVector};
+
+type BF256 = BigFloat<ConstCtx<256>>;
 
 fn main() {
     let input: &str = include_str!("24.txt");
@@ -13,7 +20,11 @@ fn main() {
     );
 }
 
-fn num_list(string: &str) -> Vec<f64> {
+fn num_list<T>(string: &str) -> Vec<T>
+where
+    T: FromStr + std::fmt::Debug,
+    <T as FromStr>::Err: std::fmt::Debug,
+{
     string
         .split(", ")
         .map(|num| num.trim().parse().unwrap())
@@ -73,26 +84,26 @@ fn part1(input: &str, min_dist: f64, max_dist: f64) -> usize {
     intersecting
 }
 fn part2(input: &str, center: f64, scale: f64) -> usize {
+    let center: BF256 = BF256::from_f64(center).unwrap();
+    let scale = BF256::from_f64(scale).unwrap();
     // Okay so I ran into some limitations with floating point numbers and this solution
-    // is not ideal. Baiscally I used Newton's multivariable method to approximate the values of the
+    // is not ideal. Basically I used Newton's multivariable method to approximate the values of the
     // starting point, the starting velocity, and the times it intersected with 3 of the rocks.
     // The type f64 is not accurate enough for this problem, and the equation solver I used did not
-    // support anything more accurate than that, so I stuck with an average of a bunch of
-    // different approximations instead of getting the exact value. I managed to narrow it down to
-    // 30 different values and guessed correctly on the third try. Ideally I would have time to
-    // replace this with my own implementation of newton's method and use f128 crate but I don't
-    // really have time for that.
-    let mut rocks: Vec<((f64, f64, f64), (f64, f64, f64))> = vec![];
+    // support anything more accurate than that, so I had to rewrite my own version of the solver
+    // and use a package that I wrote to add arbitrary precision float bindings to nalgebra
+    // But it works and it's my own solution!!
+    let mut rocks: Vec<((BF256, BF256, BF256), (BF256, BF256, BF256))> = vec![];
     for line in input.lines() {
-        let pos: Vec<f64> = num_list(line.split(" @ ").nth(0).unwrap());
-        let vel: Vec<f64> = num_list(line.split(" @ ").nth(1).unwrap());
+        let pos: Vec<BF256> = num_list(line.split(" @ ").nth(0).unwrap());
+        let vel: Vec<BF256> = num_list(line.split(" @ ").nth(1).unwrap());
         rocks.push((
             (
-                (pos[0] - center) / scale,
-                (pos[1] - center) / scale,
-                (pos[2] - center) / scale,
+                (pos[0].clone() - center.clone()) / scale.clone(),
+                (pos[1].clone() - center.clone()) / scale.clone(),
+                (pos[2].clone() - center.clone()) / scale.clone(),
             ),
-            (vel[0], vel[1], vel[2]),
+            (vel[0].clone(), vel[1].clone(), vel[2].clone()),
         ));
     }
 
@@ -100,49 +111,95 @@ fn part2(input: &str, center: f64, scale: f64) -> usize {
     // equations and we start with 6 unknowns.
     // So with 3 rocks there are 9 equations and 9 unknowns (exact answer)
 
-    let guesses: std::cell::RefCell<Vec<f64>> = std::cell::RefCell::new(vec![]);
     // v is stored as [x,y,z,vx,vy,vz,t1,t2,t3]
-    let func = |v: SVector<f64, 9>| {
-        guesses
-            .borrow_mut()
-            .push(v[0] * scale + v[1] * scale + v[2] * scale + center * 3.);
-        SVector::<f64, 9>::from([
-            v[0] + v[3] * v[6] - rocks[0].0 .0 - rocks[0].1 .0 * v[6],
-            v[1] + v[4] * v[6] - rocks[0].0 .1 - rocks[0].1 .1 * v[6],
-            v[2] + v[5] * v[6] - rocks[0].0 .2 - rocks[0].1 .2 * v[6],
-            v[0] + v[3] * v[7] - rocks[1].0 .0 - rocks[1].1 .0 * v[7],
-            v[1] + v[4] * v[7] - rocks[1].0 .1 - rocks[1].1 .1 * v[7],
-            v[2] + v[5] * v[7] - rocks[1].0 .2 - rocks[1].1 .2 * v[7],
-            v[0] + v[3] * v[8] - rocks[2].0 .0 - rocks[2].1 .0 * v[8],
-            v[1] + v[4] * v[8] - rocks[2].0 .1 - rocks[2].1 .1 * v[8],
-            v[2] + v[5] * v[8] - rocks[2].0 .2 - rocks[2].1 .2 * v[8],
-        ])
+    let func = |v: SVector<BF256, 9>| {
+        #[rustfmt::skip]
+        return SVector::<BF256, 9>::from([
+            v[0].clone() + v[3].clone() * v[6].clone() - rocks[0].0 .0.clone() - rocks[0].1 .0.clone() * v[6].clone(),
+            v[1].clone() + v[4].clone() * v[6].clone() - rocks[0].0 .1.clone() - rocks[0].1 .1.clone() * v[6].clone(),
+            v[2].clone() + v[5].clone() * v[6].clone() - rocks[0].0 .2.clone() - rocks[0].1 .2.clone() * v[6].clone(),
+            v[0].clone() + v[3].clone() * v[7].clone() - rocks[1].0 .0.clone() - rocks[1].1 .0.clone() * v[7].clone(),
+            v[1].clone() + v[4].clone() * v[7].clone() - rocks[1].0 .1.clone() - rocks[1].1 .1.clone() * v[7].clone(),
+            v[2].clone() + v[5].clone() * v[7].clone() - rocks[1].0 .2.clone() - rocks[1].1 .2.clone() * v[7].clone(),
+            v[0].clone() + v[3].clone() * v[8].clone() - rocks[2].0 .0.clone() - rocks[2].1 .0.clone() * v[8].clone(),
+            v[1].clone() + v[4].clone() * v[8].clone() - rocks[2].0 .1.clone() - rocks[2].1 .1.clone() * v[8].clone(),
+            v[2].clone() + v[5].clone() * v[8].clone() - rocks[2].0 .2.clone() - rocks[2].1 .2.clone() * v[8].clone(),
+        ]);
     };
-    let jac = |v: SVector<f64, 9>| {
-        let mut mat = SMatrix::<f64, 9, 9>::from([
-            [1., 0., 0., v[6], 0., 0., v[3] - rocks[0].1 .0, 0., 0.],
-            [0., 1., 0., 0., v[6], 0., v[4] - rocks[0].1 .1, 0., 0.],
-            [0., 0., 1., 0., 0., v[6], v[5] - rocks[0].1 .2, 0., 0.],
-            [1., 0., 0., v[7], 0., 0., 0., v[3] - rocks[1].1 .0, 0.],
-            [0., 1., 0., 0., v[7], 0., 0., v[4] - rocks[1].1 .1, 0.],
-            [0., 0., 1., 0., 0., v[7], 0., v[5] - rocks[1].1 .2, 0.],
-            [1., 0., 0., v[8], 0., 0., 0., 0., v[3] - rocks[2].1 .0],
-            [0., 1., 0., 0., v[8], 0., 0., 0., v[4] - rocks[2].1 .1],
-            [0., 0., 1., 0., 0., v[8], 0., 0., v[5] - rocks[2].1 .2],
+    let z = BF256::zero();
+    let o: BF256 = "1".parse().unwrap();
+    let jac = |v: SVector<BF256, 9>| {
+        #[rustfmt::skip]
+        let mut mat = SMatrix::<BF256, 9, 9>::from([
+            [ o.clone(), z.clone(), z.clone(), v[6].clone(), z.clone(), z.clone(), v[3].clone() - rocks[0].1 .0.clone(), z.clone(), z.clone(), ],
+            [ z.clone(), o.clone(), z.clone(), z.clone(), v[6].clone(), z.clone(), v[4].clone() - rocks[0].1 .1.clone(), z.clone(), z.clone(), ],
+            [ z.clone(), z.clone(), o.clone(), z.clone(), z.clone(), v[6].clone(), v[5].clone() - rocks[0].1 .2.clone(), z.clone(), z.clone(), ],
+            [ o.clone(), z.clone(), z.clone(), v[7].clone(), z.clone(), z.clone(), z.clone(), v[3].clone() - rocks[1].1 .0.clone(), z.clone(), ],
+            [ z.clone(), o.clone(), z.clone(), z.clone(), v[7].clone(), z.clone(), z.clone(), v[4].clone() - rocks[1].1 .1.clone(), z.clone(), ],
+            [ z.clone(), z.clone(), o.clone(), z.clone(), z.clone(), v[7].clone(), z.clone(), v[5].clone() - rocks[1].1 .2.clone(), z.clone(), ],
+            [ o.clone(), z.clone(), z.clone(), v[8].clone(), z.clone(), z.clone(), z.clone(), z.clone(), v[3].clone() - rocks[2].1 .0.clone(), ],
+            [ z.clone(), o.clone(), z.clone(), z.clone(), v[8].clone(), z.clone(), z.clone(), z.clone(), v[4].clone() - rocks[2].1 .1.clone(), ],
+            [ z.clone(), z.clone(), o.clone(), z.clone(), z.clone(), v[8].clone(), z.clone(), z.clone(), v[5].clone() - rocks[2].1 .2.clone(), ],
         ]);
         mat.transpose_mut();
         mat
     };
-    let _solution = MultiVarNewton::new(func, jac)
-        .with_itermax(100)
-        .with_tol(0.)
-        .solve(SVector::<f64, 9>::from([
-            1., 9., 3., 100., 101., 102., 1., 4., 3.,
-        ]));
+    let solution = solve(
+        // Starting vector
+        SVector::<BF256, 9>::from([
+            "1".parse().unwrap(),
+            "9".parse().unwrap(),
+            "3".parse().unwrap(),
+            "100".parse().unwrap(),
+            "101".parse().unwrap(),
+            "102".parse().unwrap(),
+            "1".parse().unwrap(),
+            "4".parse().unwrap(),
+            "3".parse().unwrap(),
+        ]),
+        func,
+        jac,
+        100,
+        "0.00001".parse().unwrap(),
+    )
+    .unwrap();
+    ((solution[0].clone() + solution[1].clone() + solution[2].clone()) * scale.clone())
+        .round()
+        .as_int()
+        .unwrap()
+        .1 as usize
+}
 
-    let count = guesses.borrow().len();
-    let sum = guesses.borrow().iter().skip(count / 2).sum::<f64>();
-    (sum / (count - count / 2) as f64) as usize
+/// Solver from https://docs.rs/crate/eqsolver/latest
+/// Although I had to modify it because it required Copy and BigFloat doesn't implement that
+pub fn solve<T, const D: usize>(
+    mut x0: SVector<T, D>,
+    mut function: impl FnMut(SVector<T, D>) -> SVector<T, D>,
+    mut jacobian: impl FnMut(SVector<T, D>) -> SMatrix<T, D, D>,
+    iter_max: usize,
+    tolerance: T,
+) -> Option<SVector<T, D>>
+where
+    T: ComplexField + RealField,
+{
+    let mut dv = x0.clone().add_scalar(T::max_value()?); // We assume error vector is infinitely long at the start
+    let mut iter = 1;
+
+    // Newton-Raphson Iteration
+    while dv.abs().max() > tolerance && iter < iter_max {
+        if let Some(j_inv) = (jacobian)(x0.clone()).try_inverse() {
+            dv = j_inv * (function)(x0.clone());
+            x0 = x0 - dv.clone();
+            iter += 1;
+            println!("{x0}");
+        } else {
+            return None;
+        }
+    }
+    if iter >= iter_max {
+        return None;
+    }
+    Some(x0)
 }
 
 #[cfg(test)]
