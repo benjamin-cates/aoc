@@ -34,6 +34,16 @@ Day       Time    Rank         Time   Rank      Start Time
   1   13:17:42  104479     14:00:19  71691      12:48
 ```
 
+## Personal times 2024
+```
+      ----Part 1------     -----Part 2-----
+Day       Time    Rank         Time    Rank
+ 02   00:06:00*   ----     01:18:54*    ---
+ 01   00:18:45    6329     00:22:08    5565
+
+* Time measured from the start of coding, rank not available. 
+```
+
 ## Structure
 Each year is in its own subdirectory under the root and is its own crate.
 

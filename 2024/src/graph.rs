@@ -73,7 +73,7 @@ impl<Node: Nodeable> StaticGraph<Node> {
     }
 }
 impl<'a, Node: Nodeable> StaticGraph<Node> {
-    pub fn into_dfs_iter(&'a self, source: &'a Node) -> DfsIter<Node> {
+    pub fn into_dfs_iter(&'a self, source: &'a Node) -> DfsIter<'a, Node> {
         DfsIter::<Node> {
             graph: self,
             stack: Vec::from([source]), 
@@ -81,7 +81,7 @@ impl<'a, Node: Nodeable> StaticGraph<Node> {
         }
 
     }
-    pub fn into_bfs_iter(&'a self, source: &'a Node) -> BfsIter<Node> {
+    pub fn into_bfs_iter(&'a self, source: &'a Node) -> BfsIter<'a, Node> {
         BfsIter::<Node> {
             graph: self,
             queue: VecDeque::from([source]), 
