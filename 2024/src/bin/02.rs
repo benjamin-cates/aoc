@@ -4,89 +4,76 @@ fn main() {
     println!("Answer to part2: {}", part2(input));
 }
 
-fn is_safe(nums: &Vec<i32>) -> bool {
-    // Check if there are no "hills"
-    for i in 0..nums.len() - 1 {
-        if i != 0 {
-            if nums[i] > nums[i + 1] && nums[i] > nums[i - 1] {
-                return false;
-            }
-            if nums[i] < nums[i + 1] && nums[i] < nums[i - 1] {
-                return false;
-            }
-        }
-        if nums[i].abs_diff(nums[i + 1]) < 1 || nums[i].abs_diff(nums[i + 1]) > 3 {
-            return false;
-        }
-    }
-    return true;
+fn is_good_inc(nums: &Vec<i32>) -> bool {
+    // Create an iterator over the differences and see if the count of valid differences is equal to the total number of differences
+    (0..nums.len() - 1)
+        .map(|i| nums[i + 1] - nums[i])
+        .filter(|v| *v >= 1 && *v <= 3).count() == nums.len() - 1
 }
 
 // Solved in 6:00
 fn part1(input: &str) -> usize {
     let mut count = 0;
     for line in input.lines() {
-        let nums = line
+        let mut nums = line
             .split_whitespace()
             .map(|v| v.parse::<i32>().unwrap())
             .collect::<Vec<_>>();
-        if is_safe(&nums) {
+        if is_good_inc(&nums) {
+            count += 1;
+            continue;
+        }
+        nums.reverse();
+        if is_good_inc(&nums) {
             count += 1;
         }
     }
     count
 }
 
-
-fn is_good_inc(nums: &Vec<i32>) -> bool {
-    let mut differences = vec![];
-    for i in 0..nums.len() - 1 {
-        differences.push(nums[i+1] - nums[i]);
-    }
-    return differences.iter().filter(|dif| *dif >= &1 && *dif <= &3).count() == differences.len();
-}
-
-fn dampened_safe_nums(nums: &Vec<i32>) -> bool {
-    let mut differences = vec![];
-    for i in 0..nums.len() - 1 {
-        differences.push(nums[i+1] - nums[i]);
-    }
+fn dampened_good_inc(nums: &Vec<i32>) -> bool {
     if is_good_inc(nums) {
         return true;
     }
-    let naughty = differences.iter().position(|v| *v < 1 || *v > 3).unwrap();
-    let removed = nums.iter().enumerate().filter(|a| a.0 != naughty).map(|a| a.1).cloned().collect::<Vec<_>>();
+    // Find the offending index
+    let naughty = (0..nums.len() - 1)
+        .map(|i| nums[i + 1] - nums[i])
+        .position(|v| v < 1 || v > 3)
+        .unwrap();
+
+    // Try removing that index
+    let mut removed = nums.clone();
+    removed.remove(naughty);
     if is_good_inc(&removed) {
         return true;
     }
-    let removed = nums.iter().enumerate().filter(|a| a.0 != naughty + 1).map(|a| a.1).cloned().collect::<Vec<_>>();
+
+    // Try removing the next element
+    let mut removed = nums.clone();
+    removed.remove(naughty + 1);
     if is_good_inc(&removed) {
         return true;
     }
+
     return false;
 }
-
-fn dampened_safe(line: &str) -> bool {
-    let mut nums = line
-        .split_whitespace()
-        .map(|v| v.parse::<i32>().unwrap())
-        .collect::<Vec<_>>();
-    if dampened_safe_nums(&nums) {
-        return true;
-    }
-    nums.reverse();
-    if dampened_safe_nums(&nums) {
-        return true;
-    }
-    return false;
-}
-
 
 // Took 1:18:00
 fn part2(input: &str) -> usize {
     let mut count = 0;
     for line in input.lines() {
-        if dampened_safe(line) {
+        let mut nums = line
+            .split_whitespace()
+            .map(|v| v.parse::<i32>().unwrap())
+            .collect::<Vec<_>>();
+        // See if it's mostly increasing safe
+        if dampened_good_inc(&nums) {
+            count += 1;
+            continue;
+        }
+        // Else, see if it's mostly decreasing safe
+        nums.reverse();
+        if dampened_good_inc(&nums) {
             count += 1;
         }
     }
