@@ -38,7 +38,8 @@ Day       Time    Rank         Time   Rank      Start Time
 ```
       ----Part 1------     -----Part 2-----
 Day       Time    Rank         Time    Rank
- 02   00:06:00*   ----     01:18:54*    ---
+ 03   00:08:30*   ----     00:18:15    ----
+ 02   00:06:00*   ----     01:18:54*   ----
  01   00:18:45    6329     00:22:08    5565
 
 * Time measured from the start of coding, rank not available. 
