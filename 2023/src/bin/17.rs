@@ -5,7 +5,7 @@ use std::collections::BinaryHeap;
 use std::collections::HashSet;
 
 fn main() {
-    let input: &str = include_str!("17.txt");
+    let input: &str = include_str!("../data/17.txt");
     println!("Answer to part1: {}", part1(input));
     println!("Answer to part2: {}", part2(input));
 }
@@ -132,7 +132,7 @@ fn test_solution() {
 4322674655533";
     assert_eq!(part1(input), 102);
     assert_eq!(part2(input), 94);
-    assert_eq!(part1(include_str!("17.txt")), 1110);
+    assert_eq!(part1(include_str!("../data/17.txt")), 1110);
     let input2 = "111111111111
 999999999991
 999999999991

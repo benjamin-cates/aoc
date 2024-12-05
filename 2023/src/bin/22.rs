@@ -1,7 +1,7 @@
 use aoc23::traverse::*;
 
 fn main() {
-    let input: &str = include_str!("22.txt");
+    let input: &str = include_str!("../data/22.txt");
     println!("Answer to part1: {}", part1(input));
     println!("Answer to part2: {}", part2(input));
 }

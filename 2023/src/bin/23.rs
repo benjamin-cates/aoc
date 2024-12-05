@@ -3,7 +3,7 @@ use aoc23::traverse::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 
 fn main() {
-    let input: &str = include_str!("23.txt");
+    let input: &str = include_str!("../data/23.txt");
     println!("Answer to part1: {}", part1(input));
     println!("Answer to part2: {}", part2(input));
 }
@@ -205,6 +205,6 @@ fn test_solution() {
 #####################.#";
     assert_eq!(part1(input), 94);
     assert_eq!(part2(input), 154);
-    assert_eq!(part1(include_str!("23.txt")), 2174);
-    assert_eq!(part2(include_str!("23.txt")), 6506);
+    assert_eq!(part1(include_str!("../data/23.txt")), 2174);
+    assert_eq!(part2(include_str!("../data/23.txt")), 6506);
 }

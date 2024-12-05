@@ -4,7 +4,7 @@ use std::collections::BTreeSet;
 use std::collections::HashMap;
 use std::collections::HashSet;
 fn main() {
-    let input: &str = include_str!("18.txt");
+    let input: &str = include_str!("../data/18.txt");
     println!("Answer to part1: {}", part1(input));
     println!("Answer to part2: {}", part2(input));
 }
@@ -210,8 +210,8 @@ R 2 (#7807d2)
 U 3 (#a77fa3)
 L 2 (#015232)
 U 2 (#7a21e3)";
-    assert_eq!(part1(include_str!("18.txt")), 36807);
+    assert_eq!(part1(include_str!("../data/18.txt")), 36807);
     assert_eq!(part1(input), 62);
-    assert_eq!(part2(include_str!("18.txt")), 48797603984357);
+    assert_eq!(part2(include_str!("../data/18.txt")), 48797603984357);
     assert_eq!(part2(input), 952408144115);
 }

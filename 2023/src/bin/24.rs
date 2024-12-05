@@ -9,7 +9,7 @@ use nalgebra::{ComplexField, RealField, SMatrix, SVector};
 type BF256 = BigFloat<ConstCtx<256>>;
 
 fn main() {
-    let input: &str = include_str!("24.txt");
+    let input: &str = include_str!("../data/24.txt");
     println!(
         "Answer to part1: {}",
         part1(input, 200000000000000., 400000000000000.)

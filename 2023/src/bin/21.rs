@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use aoc23::traverse::Dir::*;
 use aoc23::traverse::*;
 fn main() {
-    let input: &str = include_str!("21.txt");
+    let input: &str = include_str!("../data/21.txt");
     println!("Answer to part1: {}", part1(input, 64));
     println!("Answer to part2: {}", part2(input, 26501365));
 }

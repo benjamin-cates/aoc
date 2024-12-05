@@ -1,6 +1,6 @@
 use std::time::Instant;
 fn main() {
-    let input: &str = include_str!("05.txt");
+    let input: &str = include_str!("../data/05.txt");
     let start = Instant::now();
     println!("Answer to part1: {}", part1(input));
     println!("Part 1 took: {:?}", start.elapsed());

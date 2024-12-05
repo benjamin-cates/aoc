@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, collections::HashMap};
 fn main() {
-    let input: &str = include_str!("07.txt");
+    let input: &str = include_str!("../data/07.txt");
     println!("Answer to part1: {}", part1(input));
     println!("Answer to part2: {}", part2(input));
 }

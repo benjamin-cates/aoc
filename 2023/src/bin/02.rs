@@ -1,5 +1,5 @@
 fn main() {
-    let input = include_str!("02.txt");
+    let input = include_str!("../data/02.txt");
     println!("Answer to part 1: {}", part1(input));
     println!("Answer to part 2: {}", part2(input));
 }
