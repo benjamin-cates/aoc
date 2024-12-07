@@ -1,7 +1,9 @@
 fn main() {
     let input: &str = include_str!("../data/template.txt");
-    println!("Answer to part1: {}", part1(input));
-    println!("Answer to part2: {}", part2(input));
+    let now = std::time::Instant::now();
+    println!("Part 1: {} ({})", part1(input), now.elapsed());
+    let now = std::time::Instant::now();
+    println!("Part 2: {} ({})", part2(input), now.elapsed());
 }
 
 fn part1(input: &str) -> usize {
@@ -14,7 +16,7 @@ fn part2(input: &str) -> usize {
 
 #[cfg(test)]
 #[test]
-fn test_solution() {
+fn test_example() {
     let input = "";
     assert_eq!(part1(input), 0);
     assert_eq!(part2(input), 0);
