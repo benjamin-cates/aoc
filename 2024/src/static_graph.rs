@@ -1,4 +1,8 @@
-use std::{cmp::Reverse, collections::{BTreeMap, HashMap, HashSet, VecDeque}, hash::Hash};
+use std::{
+    cmp::Reverse,
+    collections::{BTreeMap, HashMap, HashSet, VecDeque},
+    hash::Hash,
+};
 
 use priority_queue::PriorityQueue;
 
@@ -11,36 +15,75 @@ pub struct StaticGraph<Node: Nodeable> {
 }
 
 impl<Node: Nodeable> StaticGraph<Node> {
+    /// Get the edge weight from a to b
     pub fn get_weight(&self, a: &Node, b: &Node) -> Option<i64> {
         self.adjacency_lists.get(a)?.get(b).copied()
     }
+    /// Returns true if edge from a to b exists
+    pub fn has_edge(&self, a: &Node, b: &Node) -> bool {
+        self.get_weight(a,b).is_some()
+    }
+    /// Create an empty graph
     pub fn new() -> Self {
         StaticGraph {
             adjacency_lists: HashMap::new(),
             nodes_set: HashSet::new(),
         }
     }
-    pub fn add_edges<I>(self, edges: I) -> Self where I: IntoIterator<Item=(Node,Node)> {
-        self.add_edges_weighted(edges.into_iter().map(|(n1,n2)| (n1, n2, 1)))
-
+    /// Add edges as undirected (bidirectional)
+    pub fn add_undirected_edges<I>(self, edges: I) -> Self
+    where
+        I: IntoIterator<Item = (Node, Node)>,
+    {
+        self.add_undirected_weighted_edges(edges.into_iter().map(|(n1, n2)| (n1, n2, 1)))
     }
-    pub fn add_edges_weighted<I>(mut self, edges: I) -> Self where I: IntoIterator<Item=(Node,Node,i64)> {
+    /// Add edges as undirected (bidirectional) with edge weights
+    pub fn add_undirected_weighted_edges<I>(mut self, edges: I) -> Self
+    where
+        I: IntoIterator<Item = (Node, Node, i64)>,
+    {
         for edge in edges {
-            if self.adjacency_lists.get(&edge.0) == None {
-                self.adjacency_lists.insert(edge.0.clone(),BTreeMap::new());
-            }
-            self.adjacency_lists.get_mut(&edge.0).unwrap().insert(edge.1.clone(), edge.2);
-            if self.adjacency_lists.get(&edge.1) == None {
-                self.adjacency_lists.insert(edge.1.clone(),BTreeMap::new());
-            }
-            self.adjacency_lists.get_mut(&edge.1).unwrap().insert(edge.0.clone(), edge.2);
+            self.adjacency_lists
+                .entry(edge.0.clone())
+                .or_default()
+                .insert(edge.1.clone(), edge.2);
+            self.adjacency_lists
+                .entry(edge.1.clone())
+                .or_default()
+                .insert(edge.0.clone(), edge.2);
+            self.nodes_set.insert(edge.0.clone());
+            self.nodes_set.insert(edge.1.clone());
+        }
+        self
+    }
+    /// Add edges as undirected (bidirectional)
+    pub fn add_directed_edges<I>(self, edges: I) -> Self
+    where
+        I: IntoIterator<Item = (Node, Node)>,
+    {
+        self.add_directed_weighted_edges(edges.into_iter().map(|(n1, n2)| (n1, n2, 1)))
+    }
+    /// Add edges as undirected (bidirectional) with edge weights
+    pub fn add_directed_weighted_edges<I>(mut self, edges: I) -> Self
+    where
+        I: IntoIterator<Item = (Node, Node, i64)>,
+    {
+        for edge in edges {
+            self.adjacency_lists
+                .entry(edge.0.clone())
+                .or_default()
+                .insert(edge.1.clone(), edge.2);
             self.nodes_set.insert(edge.0.clone());
             self.nodes_set.insert(edge.1.clone());
         }
         self
     }
     /// Takes the graph with weighted edges and a source node and returns the shortest path to any node that satisfies the target predicate.
-    pub fn dijkstras<'a>(&'a self, source: &'a Node, target: impl Fn(&'a Node) -> bool) -> Option<Vec<Node>> {
+    pub fn dijkstras<'a>(
+        &'a self,
+        source: &'a Node,
+        target: impl Fn(&'a Node) -> bool,
+    ) -> Option<Vec<Node>> {
         let mut queue: PriorityQueue<&Node, Reverse<i64>> = PriorityQueue::new();
         let mut back_list: HashMap<&Node, &Node> = HashMap::new();
         for node in self.nodes_set.iter() {
@@ -76,18 +119,16 @@ impl<'a, Node: Nodeable> StaticGraph<Node> {
     pub fn into_dfs_iter(&'a self, source: &'a Node) -> DfsIter<'a, Node> {
         DfsIter::<Node> {
             graph: self,
-            stack: Vec::from([source]), 
+            stack: Vec::from([source]),
             discovered_set: HashSet::from([source]),
         }
-
     }
     pub fn into_bfs_iter(&'a self, source: &'a Node) -> BfsIter<'a, Node> {
         BfsIter::<Node> {
             graph: self,
-            queue: VecDeque::from([source]), 
+            queue: VecDeque::from([source]),
             discovered_set: HashSet::from([source]),
         }
-
     }
 }
 pub struct BfsIter<'a, Node: Nodeable> {
@@ -137,27 +178,27 @@ impl<'a, Node: Nodeable> Iterator for DfsIter<'a, Node> {
 }
 
 #[cfg(test)]
-
 #[cfg(test)]
 mod tests {
     use super::StaticGraph;
 
     #[test]
     fn test_wfs() {
-        let graph = StaticGraph::new().add_edges([(0,1),(1,2),(2,3),(2,4),(2,5),(4,6)]);
+        let graph = StaticGraph::new().add_undirected_edges([(0, 1), (1, 2), (2, 3), (2, 4), (2, 5), (4, 6)]);
         let iter = graph.into_bfs_iter(&0);
-        assert_eq!(iter.cloned().collect::<Vec<i32>>(), vec![0,1,2,3,4,5,6]);
+        assert_eq!(
+            iter.cloned().collect::<Vec<i32>>(),
+            vec![0, 1, 2, 3, 4, 5, 6]
+        );
         let iter = graph.into_dfs_iter(&0);
-        assert_eq!(iter.cloned().collect::<Vec<_>>(), vec![0,1,2,5,4,6,3]);
+        assert_eq!(iter.cloned().collect::<Vec<_>>(), vec![0, 1, 2, 5, 4, 6, 3]);
     }
-    
+
     #[test]
     fn test_dijkstras() {
-        let graph = StaticGraph::new().add_edges_weighted([(0,2,1)]);
-        assert_eq!(graph.dijkstras(&0,|n| *n == 2),Some(vec![0,2]));
-        let graph = StaticGraph::new().add_edges_weighted([(0,1,1),(1,2,1),(0,2,3)]);
-        assert_eq!(graph.dijkstras(&0,|n| *n == 2),Some(vec![0,1,2]));
-
+        let graph = StaticGraph::new().add_undirected_weighted_edges([(0, 2, 1)]);
+        assert_eq!(graph.dijkstras(&0, |n| *n == 2), Some(vec![0, 2]));
+        let graph = StaticGraph::new().add_undirected_weighted_edges([(0, 1, 1), (1, 2, 1), (0, 2, 3)]);
+        assert_eq!(graph.dijkstras(&0, |n| *n == 2), Some(vec![0, 1, 2]));
     }
-
 }
