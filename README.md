@@ -1,4 +1,4 @@
-# Advent of Code 2023
+# Advent of Code
 Here is a collection of my [Advent of Code](https://adventofcode.com/) submissions.
 
 All of my solutions are written entirely in Rust and are my own work with no hints.
@@ -38,6 +38,7 @@ Day       Time    Rank         Time   Rank      Start Time
 ```
       ----Part 1------     -----Part 2-----
 Day       Time    Rank         Time    Rank
+ 14   00:14:19    1200     00:39:54    1356
  13   00:15:30*   ----     01:06:53*   ----
  12   00:17:15*   ----     00:35:09*   ----
  11   00:06:44*   ----     00:15:55*   ----

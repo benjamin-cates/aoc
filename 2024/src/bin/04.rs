@@ -1,4 +1,4 @@
-use aoc23::CharGrid;
+use aoc24::CharGrid;
 
 fn main() {
     let input: &str = include_str!("../data/04.txt");

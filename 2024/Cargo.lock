@@ -3,7 +3,7 @@
 version = 4
 
 [[package]]
-name = "aoc23"
+name = "aoc24"
 version = "0.1.0"
 dependencies = [
  "priority-queue",

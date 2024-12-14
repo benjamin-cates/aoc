@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use aoc23::{CharGrid, Direction, LazyGraph, Point};
+use aoc24::{CharGrid, Direction, LazyGraph, Point};
 
 fn main() {
     let input: &str = include_str!("../data/12.txt");

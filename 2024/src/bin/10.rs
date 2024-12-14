@@ -1,6 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 
-use aoc23::{CharGrid, LazyGraph, Point};
+use aoc24::{CharGrid, LazyGraph, Point};
 
 fn main() {
     let input: &str = include_str!("../data/10.txt");
@@ -21,7 +21,7 @@ fn part1(input: &str) -> usize {
         to_visit.push_back(trailhead);
         while to_visit.len() != 0 {
             let cur = to_visit.pop_front().unwrap();
-            use aoc23::Direction::*;
+            use aoc24::Direction::*;
             for dir in [North, South, East, West] {
                 let place = cur + dir.step();
                 if visited.get(&place).is_some() {
@@ -43,7 +43,7 @@ fn part1(input: &str) -> usize {
     answer
 }
 
-use aoc23::Direction::*;
+use aoc24::Direction::*;
 fn other_part1(input: &str) -> usize {
     let grid = CharGrid::new(input);
     // LazyGraph function returns the outgoing edges for any given node
@@ -80,7 +80,7 @@ fn part2(input: &str) -> usize {
         to_visit.push_back(trailhead);
         while to_visit.len() != 0 {
             let cur = to_visit.pop_front().unwrap();
-            use aoc23::Direction::*;
+            use aoc24::Direction::*;
             for dir in [North, South, East, West] {
                 let place = cur + dir.step();
                 if let Some(val) = grid.get(place) {

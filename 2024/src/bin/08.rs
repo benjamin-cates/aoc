@@ -1,6 +1,6 @@
 use std::collections::{BTreeSet, HashSet};
 
-use aoc23::{CharGrid, Point};
+use aoc24::{CharGrid, Point};
 
 fn main() {
     let input: &str = include_str!("../data/08.txt");
