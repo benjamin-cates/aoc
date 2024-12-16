@@ -114,6 +114,49 @@ impl<Node: Nodeable> StaticGraph<Node> {
         }
         return None;
     }
+    pub fn dijkstras_set<'a>(
+        &'a self,
+        source: &'a Node,
+        target: impl Fn(&'a Node) -> bool,
+    ) -> Option<HashSet<&'a Node>> {
+        let mut queue: PriorityQueue<&Node, Reverse<i64>> = PriorityQueue::new();
+        let mut back_list: HashMap<&Node, HashSet<&Node>> = HashMap::new();
+        for node in self.nodes_set.iter() {
+            queue.push(node, Reverse(i64::MAX));
+        }
+        queue.change_priority(source, Reverse(0));
+        while !queue.is_empty() {
+            let (cur, cost) = queue.pop().unwrap();
+            if cost.0 == i64::MAX {
+                return None;
+            }
+            if target(cur) {
+                return back_list.get(cur).cloned();
+            }
+            for (neighbor, dist) in self.adjacency_lists.get(cur).unwrap() {
+                if let Some((_, neighbor_priority)) = queue.get(neighbor) {
+                    if neighbor_priority.0 == cost.0 + dist {
+                        if back_list.get(cur).is_some() {
+                            let to_insert = back_list.get(cur).unwrap().clone();
+                            back_list.entry(neighbor).or_default().extend(to_insert);
+                            back_list.entry(neighbor).or_default().insert(cur);
+                        }
+                    }
+                    if neighbor_priority.0 > cost.0 + dist {
+                        queue.change_priority(neighbor, Reverse(cost.0 + dist));
+                        let hash_set_b4 = match back_list.get(cur) {
+                            Some(b4) => b4.clone(),
+                            None => HashSet::new()
+                        };
+                        back_list.entry(neighbor).insert_entry(hash_set_b4);
+                        back_list.entry(neighbor).or_default().insert(cur);
+                    }
+
+                }
+            }
+        }
+        return None;
+    }
 }
 impl<'a, Node: Nodeable> StaticGraph<Node> {
     pub fn into_dfs_iter(&'a self, source: &'a Node) -> DfsIter<'a, Node> {

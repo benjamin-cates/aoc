@@ -1,14 +1,11 @@
 use std::{
-    cmp::Reverse,
-    collections::{HashMap, HashSet, VecDeque},
-    hash::Hash,
-    marker::PhantomData,
+    cmp::Reverse, collections::{HashMap, HashSet, VecDeque}, fmt::Debug, hash::Hash, marker::PhantomData
 };
 
 use priority_queue::PriorityQueue;
 
-pub trait Nodeable: Hash + Clone + Eq {}
-impl<T> Nodeable for T where T: Hash + Clone + Eq {}
+pub trait Nodeable: Hash + Clone + Eq + Debug {}
+impl<T> Nodeable for T where T: Hash + Clone + Eq + Debug {}
 
 pub struct LazyGraph<Node: Nodeable, Func, Iter>
 where
@@ -43,17 +40,19 @@ where
         (self.neighbors_func)(a).position(|x| x.0 == *b).is_some()
     }
     /// Takes the graph with weighted edges and a source node and returns the shortest path to any node that satisfies the target predicate.
-    pub fn dijkstras<'a>(
+    pub fn dijkstras<'a, 'b>(
         &'a self,
         source: &'a Node,
-        target: impl Fn(&'a Node) -> bool,
-    ) -> Option<Vec<Node>> {
-        let mut queue: PriorityQueue<&Node, Reverse<i32>> = PriorityQueue::new();
-        let mut back_list: HashMap<Node, &Node> = HashMap::new();
-        queue.change_priority(source, Reverse(0));
+        target: impl Fn(Node) -> bool,
+    ) -> Option<Vec<Node>> where Node: 'b{
+        let mut queue: PriorityQueue<Node, Reverse<i32>> = PriorityQueue::new();
+        let mut back_list: HashMap<Node, Node> = HashMap::new();
+        queue.push(source.clone(), Reverse(0));
         while !queue.is_empty() {
-            let (cur, cost) = queue.pop().unwrap();
-            if target(cur) {
+            let (cur, cost) = queue.peek().unwrap();
+            let (cur, cost) = (cur.clone(), cost.clone());
+            queue.change_priority(&cur,Reverse(i32::MAX));
+            if target(cur.clone()) {
                 let mut path: Vec<Node> = vec![cur.clone()];
                 while let Some(next) = back_list.get(path.last().unwrap()) {
                     path.push((*next).clone());
@@ -61,15 +60,17 @@ where
                 path.reverse();
                 return Some(path);
             }
-            for (neighbor, dist) in (self.neighbors_func)(cur) {
+            for (neighbor, dist) in (self.neighbors_func)(&cur) {
                 if let Some((_, neighbor_priority)) = queue.get(&neighbor) {
                     if neighbor_priority.0 > cost.0 + dist {
-                        queue.change_priority(&neighbor, Reverse(cost.0 + dist));
-                        back_list.insert(neighbor, cur);
+                        back_list.insert(neighbor.clone(), cur.clone());
+                        queue.push_decrease(neighbor, Reverse(cost.0 + dist));
                     }
                 } else {
-                    queue.change_priority(&neighbor, Reverse(cost.0 + dist));
-                    back_list.insert(neighbor, cur);
+                    if back_list.get(&neighbor).is_none() {
+                        back_list.insert(neighbor.clone(), cur.clone());
+                    }
+                    queue.push_decrease(neighbor, Reverse(cost.0 + dist));
                 }
             }
         }
