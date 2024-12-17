@@ -17,6 +17,29 @@ impl std::ops::Add for Point {
         }
     }
 }
+impl<T: Into<Point>> std::ops::AddAssign<T> for Point {
+    fn add_assign(&mut self, rhs: T) {
+        let point = rhs.into();
+        self.x += point.x;
+        self.y += point.y;
+    }
+}
+impl std::ops::Sub for Point {
+    type Output = Point;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Point {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+impl<T: Into<Point>> std::ops::SubAssign<T> for Point {
+    fn sub_assign(&mut self, rhs: T) {
+        let point = rhs.into();
+        self.x -= point.x;
+        self.y -= point.y;
+    }
+}
 impl std::ops::Mul<Point> for i32 {
     type Output = Point;
     fn mul(self, rhs: Point) -> Self::Output {
@@ -181,7 +204,25 @@ impl std::fmt::Display for CharGrid {
         }
         Ok(())
     }
-
+}
+impl<T> std::ops::Index<T> for CharGrid where T: Into<Point> {
+    type Output = char;
+    fn index(&self, index: T) -> &Self::Output {
+        let point = index.into();
+        if point.x < 0 || point.y < 0 || point.x >= self.width() || point.y >= self.height() {
+            panic!("Tried to get point {} outside of char grid",point);
+        }
+        &self.grid[point.y as usize][point.x as usize]
+    }
+}
+impl<T> std::ops::IndexMut<T> for CharGrid where T: Into<Point> {
+    fn index_mut(&mut self, index: T) -> &mut Self::Output {
+        let point = index.into();
+        if point.x < 0 || point.y < 0 || point.x >= self.width() || point.y >= self.height() {
+            panic!("Tried to get point {} outside of char grid",point);
+        }
+        &mut self.grid[point.y as usize][point.x as usize]
+    }
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
@@ -197,6 +238,9 @@ use std::{fmt::{Display, Formatter, Write}, iter};
 use Direction::*;
 
 impl Direction {
+    pub fn iter_all() -> impl Iterator<Item = Direction> {
+        [North, South, East, West].into_iter()
+    }
     pub fn opposite(&self) -> Direction {
         match self {
             North => South,
