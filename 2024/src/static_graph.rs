@@ -21,7 +21,7 @@ impl<Node: Nodeable> StaticGraph<Node> {
     }
     /// Returns true if edge from a to b exists
     pub fn has_edge(&self, a: &Node, b: &Node) -> bool {
-        self.get_weight(a,b).is_some()
+        self.get_weight(a, b).is_some()
     }
     /// Create an empty graph
     pub fn new() -> Self {
@@ -146,12 +146,11 @@ impl<Node: Nodeable> StaticGraph<Node> {
                         queue.change_priority(neighbor, Reverse(cost.0 + dist));
                         let hash_set_b4 = match back_list.get(cur) {
                             Some(b4) => b4.clone(),
-                            None => HashSet::new()
+                            None => HashSet::new(),
                         };
                         back_list.entry(neighbor).insert_entry(hash_set_b4);
                         back_list.entry(neighbor).or_default().insert(cur);
                     }
-
                 }
             }
         }
@@ -227,7 +226,14 @@ mod tests {
 
     #[test]
     fn test_wfs() {
-        let graph = StaticGraph::new().add_undirected_edges([(0, 1), (1, 2), (2, 3), (2, 4), (2, 5), (4, 6)]);
+        let graph = StaticGraph::new().add_undirected_edges([
+            (0, 1),
+            (1, 2),
+            (2, 3),
+            (2, 4),
+            (2, 5),
+            (4, 6),
+        ]);
         let iter = graph.into_bfs_iter(&0);
         assert_eq!(
             iter.cloned().collect::<Vec<i32>>(),
@@ -241,7 +247,8 @@ mod tests {
     fn test_dijkstras() {
         let graph = StaticGraph::new().add_undirected_weighted_edges([(0, 2, 1)]);
         assert_eq!(graph.dijkstras(&0, |n| *n == 2), Some(vec![0, 2]));
-        let graph = StaticGraph::new().add_undirected_weighted_edges([(0, 1, 1), (1, 2, 1), (0, 2, 3)]);
+        let graph =
+            StaticGraph::new().add_undirected_weighted_edges([(0, 1, 1), (1, 2, 1), (0, 2, 3)]);
         assert_eq!(graph.dijkstras(&0, |n| *n == 2), Some(vec![0, 1, 2]));
     }
 }
