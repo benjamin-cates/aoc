@@ -1,6 +1,6 @@
 use std::{cmp::Reverse, collections::{BTreeMap, HashMap, HashSet}};
 
-use aoc24::{CharGrid, Direction, LazyGraph, Point, StaticGraph};
+use aoc24::{CharGrid, Direction, Point, StaticGraph};
 use priority_queue::PriorityQueue;
 
 fn main() {

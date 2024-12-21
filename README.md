@@ -38,6 +38,7 @@ Day       Time    Rank         Time   Rank      Start Time
 ```
       ----Part 1------     -----Part 2-----
 Day       Time    Rank         Time    Rank
+ 21   03:45:23    3124     next day    ----
  20   00:16:49*   ----     00:31:50*   ----
  19   00:22:47*   ----     00:26:36*   ----
  18   00:09:20*   ----     00:13:30*   ----
