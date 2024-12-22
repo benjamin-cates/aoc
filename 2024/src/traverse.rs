@@ -4,8 +4,8 @@ pub struct Point {
     pub y: i32,
 }
 impl Display for Point {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(),std::fmt::Error> {
-        f.write_fmt(format_args!("({}, {})",self.x,self.y))
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+        f.write_fmt(format_args!("({}, {})", self.x, self.y))
     }
 }
 impl std::ops::Add for Point {
@@ -79,6 +79,11 @@ pub struct CharGrid {
     pub grid: Vec<Vec<char>>,
 }
 impl CharGrid {
+    pub fn new_fill(width: usize, height: usize, ch: char) -> CharGrid {
+        CharGrid {
+            grid: vec![vec![ch; width]; height],
+        }
+    }
     pub fn new(chars: &str) -> CharGrid {
         let out = CharGrid {
             grid: chars.lines().map(|x| x.chars().collect()).collect(),
@@ -105,46 +110,44 @@ impl CharGrid {
         for y in 0..self.height() as usize {
             for x in 0..self.width() as usize {
                 if self.grid[y][x] == ch {
-                    return Some((x,y).into());
+                    return Some((x, y).into());
                 }
             }
         }
         None
     }
-    pub fn find_all<'a>(&'a self, ch: char) -> impl Iterator<Item=Point> + use<'a> {
+    pub fn find_all<'a>(&'a self, ch: char) -> impl Iterator<Item = Point> + use<'a> {
         let mut x = 0;
         let mut y = 0;
         let width = self.width() as usize;
         let height = self.height() as usize;
-        iter::from_fn(move || {
-            loop {
-                if self.grid[y][x] == ch {
-                    let out = Some((x,y).into());
-                    x += 1;
-                    if x == width {
-                        x = 0;
-                        y += 1;
-                    }
-                    return out;
-                }
+        iter::from_fn(move || loop {
+            if self.grid[y][x] == ch {
+                let out = Some((x, y).into());
                 x += 1;
                 if x == width {
                     x = 0;
                     y += 1;
                 }
-                if y >= height {
-                    return None;
-                }
+                return out;
+            }
+            x += 1;
+            if x == width {
+                x = 0;
+                y += 1;
+            }
+            if y >= height {
+                return None;
             }
         })
     }
-    pub fn iter_points<'a>(&'a self) -> impl Iterator<Item=(Point,char)> + use<'a> {
+    pub fn iter_points<'a>(&'a self) -> impl Iterator<Item = (Point, char)> + use<'a> {
         let mut x = 0;
         let mut y = 0;
         let width = self.width() as usize;
         let height = self.height() as usize;
         iter::from_fn(move || {
-            let out = Some(((x,y).into(),self.grid[x][y]));
+            let out = Some(((x, y).into(), self.grid[x][y]));
             x += 1;
             if x == width {
                 x = 0;
@@ -155,22 +158,19 @@ impl CharGrid {
             }
             out
         })
-
     }
     pub fn get_unwrap<T: Into<Point>>(&self, pos: T) -> char {
         let point: Point = pos.into();
         if point.x < 0 || point.y < 0 || point.x >= self.width() || point.y >= self.height() {
-            panic!("Tried to get point {} outside of char grid",point);
+            panic!("Tried to get point {} outside of char grid", point);
         }
         self.grid[point.y as usize][point.x as usize]
-
     }
     pub fn is_inside<T: Into<Point>>(&self, pos: T) -> bool {
         let point: Point = pos.into();
         if point.x < 0 || point.y < 0 || point.x >= self.width() || point.y >= self.height() {
             false
-        }
-        else {
+        } else {
             true
         }
     }
@@ -195,7 +195,7 @@ impl CharGrid {
 }
 
 impl std::fmt::Display for CharGrid {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(),std::fmt::Error> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
         for line in self.grid.iter() {
             for char in line.iter() {
                 f.write_char(*char)?;
@@ -205,21 +205,27 @@ impl std::fmt::Display for CharGrid {
         Ok(())
     }
 }
-impl<T> std::ops::Index<T> for CharGrid where T: Into<Point> {
+impl<T> std::ops::Index<T> for CharGrid
+where
+    T: Into<Point>,
+{
     type Output = char;
     fn index(&self, index: T) -> &Self::Output {
         let point = index.into();
         if point.x < 0 || point.y < 0 || point.x >= self.width() || point.y >= self.height() {
-            panic!("Tried to get point {} outside of char grid",point);
+            panic!("Tried to get point {} outside of char grid", point);
         }
         &self.grid[point.y as usize][point.x as usize]
     }
 }
-impl<T> std::ops::IndexMut<T> for CharGrid where T: Into<Point> {
+impl<T> std::ops::IndexMut<T> for CharGrid
+where
+    T: Into<Point>,
+{
     fn index_mut(&mut self, index: T) -> &mut Self::Output {
         let point = index.into();
         if point.x < 0 || point.y < 0 || point.x >= self.width() || point.y >= self.height() {
-            panic!("Tried to get point {} outside of char grid",point);
+            panic!("Tried to get point {} outside of char grid", point);
         }
         &mut self.grid[point.y as usize][point.x as usize]
     }
@@ -233,7 +239,10 @@ pub enum Direction {
     West,
 }
 
-use std::{fmt::{Display, Formatter, Write}, iter};
+use std::{
+    fmt::{Display, Formatter, Write},
+    iter,
+};
 
 use Direction::*;
 
@@ -291,7 +300,6 @@ impl Direction {
             West => South,
         }
     }
-
 }
 impl TryFrom<char> for Direction {
     type Error = ();
